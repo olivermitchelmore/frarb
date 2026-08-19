@@ -1,0 +1,8 @@
+[package]
+name = "frarb"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.104"
+async-trait = "0.1.92"
