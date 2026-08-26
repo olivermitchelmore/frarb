@@ -5,16 +5,16 @@ pub mod order_client;
 use order_client::OrderClient;
 use market_data::MarketData;
 
-pub struct Binance {
+pub struct Bitget {
     id: ExchangeId,
     pub order_client: OrderClient,
     pub market_data: MarketData,
 }
 
-impl Exchange for Binance{
+impl Exchange for Bitget{
     fn new() -> Self {
         Self {
-            id: ExchangeId::Binance,
+            id: ExchangeId::Bitget,
             order_client: OrderClient::new(),
             market_data: MarketData::new(),
         }

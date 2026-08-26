@@ -1,16 +1,23 @@
+pub mod binance;
+pub mod bitget;
+
 use::anyhow::Result;
-use::async_trait::async_trait;
+use binance::Binance;
+use bitget::Bitget;
 
-#[async_trait]
-pub trait OrderClient {
-    fn id(&self) -> ExchangeId;
-    fn place_order(order: Order) -> Result<OrderUpdate>;
-
+pub trait OrderApi {
+    fn place_order(&self, order: Order) -> Result<OrderUpdate>;
+    fn cancel_order(&self, order_id: String) -> Result<()>;
+    fn get_balance(&self) -> Result<f64, anyhow::Error>;
 }
 
-#[async_trait]
-pub trait MarketDataClient {
+pub trait MarketDataProvider {
     fn start_listening(&self) -> Result<()>;
+}
+
+pub trait Exchange {
+    fn new() -> Self;
+    fn id(&self) -> ExchangeId;
 }
 
 pub struct Order {
@@ -48,6 +55,7 @@ pub struct OrderUpdate {
     side: Side,
 }
 
+#[derive(Clone, Copy)]
 pub enum ExchangeId {
     Binance,
     Bitget,
@@ -55,7 +63,7 @@ pub enum ExchangeId {
 }
 
 impl ExchangeId {
-    pub fn as_str(&self) -> &str {
+    pub fn name(&self) -> &str {
         match self {
             ExchangeId::Binance => "binance",
             ExchangeId::Bitget => "bitget",
@@ -64,5 +72,30 @@ impl ExchangeId {
     }
 }
 
+pub enum ExchangeType {
+    Binance(Binance),
+    Bitget(Bitget),
+}
 
-pub mod binance;
+impl OrderApi for ExchangeType {
+    fn place_order(&self, order: Order) -> Result<OrderUpdate> {
+        match self {
+            ExchangeType::Binance(e) => e.order_client.place_order(order),
+            ExchangeType::Bitget(e) => e.order_client.place_order(order),
+        }
+    }
+
+    fn cancel_order(&self, order_id: String) -> Result<()> {
+        match self {
+            ExchangeType::Binance(e) => e.order_client.cancel_order(order_id),
+            ExchangeType::Bitget(e) => e.order_client.cancel_order(order_id),
+        }
+    }
+
+    fn get_balance(&self) -> Result<f64> {
+        match self {
+            ExchangeType::Binance(e) => e.order_client.get_balance(),
+            ExchangeType::Bitget(e) => e.order_client.get_balance(),
+        }
+    }
+}
