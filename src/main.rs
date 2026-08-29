@@ -8,6 +8,6 @@ use crate::strategy::funding_arb::FundingArb;
 async fn main() {
     println!("Hello, world!");
 
-    let strategy = FundingArb::new(vec![]);
-    strategy.run().await.unwrap();
+    // let strategy = FundingArb::new();
+    // strategy.run().await.unwrap();
 }

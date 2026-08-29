@@ -4,13 +4,19 @@ use crossfire::{mpsc, MAsyncRx};
 
 pub struct FundingArb {
     exchanges: Vec<ExchangeType>,
+    rx: MAsyncRx<mpsc::Array<ExchangeUpdate>>,
 }
 
 impl Strategy for FundingArb {
     fn new(exchanges: Vec<ExchangeType>, rx: MAsyncRx<mpsc::Array<ExchangeUpdate>>) -> Self {
         Self {
             exchanges,
+            rx
         }
+    }
+
+    fn subscribe(&self) {
+        
     }
 
     async fn run(&self) -> anyhow::Result<()> {

@@ -1,3 +1,4 @@
+use tokio::sync::watch;
 use std::str::FromStr;
 
 pub struct Order {
@@ -7,6 +8,7 @@ pub struct Order {
     order_type: OrderType,
     time_in_force: TimeInForce,
 }
+#[derive(Default)]
 pub struct MarketUpdate {
     exchange: ExchangeId,
     symbol: Symbol,
@@ -17,7 +19,8 @@ pub enum OrderResponse {
     Success(OrderUpdate),
     Failure,
 }
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
+#[derive(Eq, Hash, PartialEq)]
 pub enum ExchangeId {
     Binance,
     Bitget,
@@ -33,6 +36,8 @@ impl ExchangeId {
         }
     }
 }
+
+#[derive(Default)]
 pub struct OrderUpdate {
     order_id: String,
     price: i64,
@@ -40,6 +45,7 @@ pub struct OrderUpdate {
     side: Side,
 }
 
+#[derive(Eq, Hash, PartialEq, Default)]
 pub enum Symbol {
     BTCUSD,
     ETHUSD,
@@ -85,6 +91,17 @@ pub enum OrderType {
 pub enum Side {
     Buy,
     Sell,
+}
+
+impl Default for Side {
+    fn default() -> Self {
+        Side::Buy
+    }
+}
+pub struct SymbolRequest {
+    pub strategy: watch::Receiver<OrderUpdate>,
+    pub symbol: Symbol,
+    pub exchange: ExchangeId,
 }
 
 
