@@ -1,8 +1,6 @@
 use crate::exchange::{Order, OrderApi, OrderUpdate};
 
-pub struct OrderClient {
-
-}
+pub struct OrderClient {}
 
 impl OrderClient {
     pub fn new() -> Self {

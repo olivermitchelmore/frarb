@@ -1,9 +1,13 @@
 pub mod binance;
 pub mod bitget;
+pub mod types;
 
-use::anyhow::Result;
+pub use types::*;
+
+use anyhow::Result;
 use binance::Binance;
 use bitget::Bitget;
+use crossfire::{MAsyncTx, mpsc};
 
 pub trait OrderApi {
     fn place_order(&self, order: Order) -> Result<OrderUpdate>;
@@ -12,64 +16,12 @@ pub trait OrderApi {
 }
 
 pub trait MarketDataProvider {
-    fn start_listening(&self) -> Result<()>;
+    async fn start_listening(&self, tx: MAsyncTx<mpsc::Array<ExchangeUpdate>>) -> Result<()>;
 }
 
 pub trait Exchange {
     fn new() -> Self;
     fn id(&self) -> ExchangeId;
-}
-
-pub struct Order {
-    price: i64,
-    quantity: i64,
-    side: Side,
-    order_type: OrderType,
-    time_in_force: TimeInForce,
-}
-
-pub enum TimeInForce {
-    Gtc,
-    Ioc,
-    Fok,
-}
-
-pub enum OrderType {
-    Market,
-    Limit,
-}
-
-pub enum Side {
-    Buy,
-    Sell
-}
-
-pub enum OrderResponse {
-    Success(OrderUpdate),
-    Failure,
-}
-pub struct OrderUpdate {
-    order_id: String,
-    price: i64,
-    quantity: i64,
-    side: Side,
-}
-
-#[derive(Clone, Copy)]
-pub enum ExchangeId {
-    Binance,
-    Bitget,
-    Okx,
-}
-
-impl ExchangeId {
-    pub fn name(&self) -> &str {
-        match self {
-            ExchangeId::Binance => "binance",
-            ExchangeId::Bitget => "bitget",
-            ExchangeId::Okx => "okx",
-        }
-    }
 }
 
 pub enum ExchangeType {
@@ -97,5 +49,14 @@ impl OrderApi for ExchangeType {
             ExchangeType::Binance(e) => e.order_client.get_balance(),
             ExchangeType::Bitget(e) => e.order_client.get_balance(),
         }
+    }
+}
+impl MarketDataProvider for ExchangeType {
+    async fn start_listening(&self, tx: MAsyncTx<mpsc::Array<ExchangeUpdate>>) -> Result<()> {
+        match self {
+            ExchangeType::Binance(e) => e.market_data.start_listening(tx).await?,
+            ExchangeType::Bitget(e) => e.market_data.start_listening(tx).await?,
+        };
+        Ok(())
     }
 }

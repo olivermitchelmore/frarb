@@ -2,8 +2,8 @@ use crate::exchange::{Exchange, ExchangeId};
 
 pub mod market_data;
 pub mod order_client;
-use order_client::OrderClient;
 use market_data::MarketData;
+use order_client::OrderClient;
 
 pub struct Binance {
     id: ExchangeId,
@@ -11,7 +11,7 @@ pub struct Binance {
     pub market_data: MarketData,
 }
 
-impl Exchange for Binance{
+impl Exchange for Binance {
     fn new() -> Self {
         Self {
             id: ExchangeId::Binance,

@@ -1,17 +1,19 @@
-use crate::exchange::MarketDataProvider;
+use crate::exchange::{ExchangeUpdate, MarketDataProvider};
+use crossfire::{MAsyncTx, mpsc};
 
-pub struct MarketData {
-
-}
+pub struct MarketData {}
 
 impl MarketData {
-    pub fn new() -> Self{
+    pub fn new() -> Self {
         Self {}
     }
 }
 
 impl MarketDataProvider for MarketData {
-    fn start_listening(&self) -> anyhow::Result<()> {
+    async fn start_listening(
+        &self,
+        tx: MAsyncTx<mpsc::Array<ExchangeUpdate>>,
+    ) -> anyhow::Result<()> {
         todo!()
     }
 }
